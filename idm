@@ -1,10 +1,22 @@
 #!/bin/nu
 
-def main [cmd: string, -c: string , ...args: string] {
+const idm_version = "1.0.0"
+
+def --wrapped main [cmd?: string, -c: string, --version(-v) , ...args: string] {
   let config_obj = if $c != null { 
     open ($c | path expand)
   } else {
     open ("~/.config/idm/idm.json" | path expand)
+  }
+
+  if $version {
+    print $"idm version ($idm_version)"
+    return
+  }
+
+  if ($cmd | is-empty) {
+    print "idm: Error, argument required"
+    return
   }
 
   match $cmd { 
@@ -28,24 +40,24 @@ def main [cmd: string, -c: string , ...args: string] {
           }
 
           if not ($mod_path | path exists) { 
-            print -e $"idm: Failed to create link for ($alias), module ($mod_path) does not exist."
+            print -e $"idm: Failed to create link for ($alias), module ($mod_path) does not exist"
             return
           }
 
           if ($link_path | path exists --no-symlink) {
             if ($link_path | path type) != "symlink" {
-              print -e $"idm: Failed to create link for ($alias), target path ($link_path) already exists and is not a symlink, requires manual intervention to prevent data loss."
+              print -e $"idm: Failed to create link for ($alias), target path ($link_path) already exists and is not a symlink, requires manual intervention to prevent data loss"
               return
             }
 
             # Check if symlink is dangling, if so, (for now) ignore
             if not ($link_path | path exists) {
-              print -e $"idm: Failed to create link for ($alias), broken symlink ($link_path) exists, requires manual intervention to prevent data loss."
+              print -e $"idm: Failed to create link for ($alias), broken symlink ($link_path) exists, requires manual intervention to prevent data loss"
               return
             }
 
             if (readlink -f $link_path) != $mod_path {
-              print -e $"idm: Failed to create link for ($alias), symlink ($link_path) already exists but does not point to intended module, requires manual intervention to prevent data loss."
+              print -e $"idm: Failed to create link for ($alias), symlink ($link_path) already exists but does not point to intended module, requires manual intervention to prevent data loss"
               return
             }
             
@@ -60,6 +72,62 @@ def main [cmd: string, -c: string , ...args: string] {
       } | ignore
     }
 
-    _ => {}
+    # Names are gpush and gpull to allow access to git push and git pull manually in case it is needed,
+    # this should not be often necesary however
+    "gpush" => {
+      let git_path = ($config_obj.dotfile-path | path expand)
+      try {git -C $git_path add -A}
+      try {git -C $git_path commit -m (random uuid)}
+      try {git -C $git_path push origin}
+    }
+
+    "gpull" => {
+      let git_path = ($config_obj.dotfile-path | path expand)
+      try {git -C $git_path add -A}
+    }
+
+    "grestore" => {
+      let git_path = ($config_obj.dotfile-path | path expand)
+
+      # Handle special all case
+      if ($args | first) == "all" {
+        try {git -C $git_path restore ./}
+        return
+      }
+
+      $args | each {|arg|
+        $config_obj.paths 
+        | items {|path mods|
+          $mods 
+          | items {|mod_head mod_rec|
+            let alias = if ("alias" in $mod_rec) {
+              $mod_rec | get "alias"
+            } else {
+              $mod_head
+            }
+            
+            if ($arg != $mod_head) and ($arg != $alias) {
+              return
+            }
+
+            let relative_mod_path = $"./($mod_head)" 
+
+            try {git -C $git_path restore $relative_mod_path}
+            
+            return "found"
+          }
+        } | flatten
+        | if not ("found" in $in) { 
+          print -e $"idm: Failed to restore ($arg), not such module found in idm configuration"
+        }
+      } | ignore
+    }
+
+    # For any other command idm doubles as a wrapper for git on the dotfiles
+    # local repo
+    _ => {
+      let git_path = ($config_obj.dotfile-path | path expand)
+      git -C $git_path $cmd ...$args
+    }
   }
 }
