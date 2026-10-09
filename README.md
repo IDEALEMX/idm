@@ -80,6 +80,15 @@ git -C path/to/dotfiles
 ```
 Allowing you to easily manage the repo from anywhere
 
+## Flags
+Currently idm supports only one flag
+```sh
+idm -c "config-path"
+```
+
+Which allows you to run idm while loading some .json config file other that
+~/.config/idm/idm.json
+
 ## Installation
 ### Arch linux
 ```sh
@@ -110,3 +119,64 @@ Sample configuration:
     }
 }
 ```
+
+## Module Object Parameters
+Every module found within a path, (say, ".bashrc" inside of "~/" or "nvim" in
+"~/.config") points to a object, for example:
+
+``` json
+{
+    "idm" : {}
+}
+```
+
+This object can contain a few "key" "value" pairs to modify how idm will a few
+"key" "value" pairs to modify how idm will treat it.
+
+### The following include all implemented so far:
+
+----
+#### Alias
+
+``` json
+{
+    ".bash" : { "alias" : "shell" }
+}
+```
+
+Alias allows for the definition of a more convenient name for the module,
+similar to shell aliases. \
+In this case this case this would allow for the following syntax
+
+``` sh
+idm grestore shell
+# instead of
+idm grestore .bashrc
+```
+
+#### as
+As allows to change the name of the generated symlink, as well as any
+subdirectory it should be put on.
+
+``` json
+{ 
+    "~/.config" : {
+        "some-dir/idm" : {}
+    }
+}
+```
+In the previous example the symlink generated will be: \
+~/.config/some-dir/idm\
+But in this case we don't actually want to place it inside "some-dir\" and
+would prefer to save the symlink as:
+~/.config/idm\
+In this case, we can use "as", to change the name this new symlink will take: 
+
+``` json
+{ 
+    "~/.config" : {
+        "some-dir/idm" : { "as" : "idm" }
+    }
+}
+```
+and so, the resulting symlink is "~/.config/idm"

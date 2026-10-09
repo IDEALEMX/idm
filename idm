@@ -49,7 +49,6 @@ def --wrapped main [cmd?: string, -c: string, --version(-v) , ...args: string] {
             let as_link_path = $path
             | path join ($mod_rec | get "as")
             | path expand --no-symlink
-            print $as_link_path
 
             if ($as_link_path | path exists) {
               if ($as_link_path | path type) != "symlink" {
@@ -72,6 +71,7 @@ def --wrapped main [cmd?: string, -c: string, --version(-v) , ...args: string] {
             }
             
             ln -s $mod_path $as_link_path
+            print $"idm: Symlink: ($as_link_path) -> ($mod_path)"
             return
           }
 
@@ -100,6 +100,7 @@ def --wrapped main [cmd?: string, -c: string, --version(-v) , ...args: string] {
           }
 
           ln -s $mod_path $link_path
+          print $"idm: Symlink: ($link_path) -> ($mod_path)"
         } 
       } | ignore
     }
@@ -107,6 +108,12 @@ def --wrapped main [cmd?: string, -c: string, --version(-v) , ...args: string] {
     # Names are gpush and gpull to allow access to git push and git pull manually in case it is needed,
     # this should not be often necesary however
     "gpush" => {
+
+      # run-pre-gpush if defined
+      if ("run-pre-gpush" in $config_obj) {
+        sh -c ($config_obj | get "run-pre-gpush")
+      }
+
       let git_path = ($config_obj.dotfile-path | path expand)
       try {git -C $git_path add -A}
       try {git -C $git_path commit -m (random uuid)}
