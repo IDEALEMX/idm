@@ -1,0 +1,65 @@
+#!/bin/nu
+
+def main [cmd: string, -c: string , ...args: string] {
+  let config_obj = if $c != null { 
+    open ($c | path expand)
+  } else {
+    open ("~/.config/idm/idm.json" | path expand)
+  }
+
+  match $cmd { 
+    "sync" => {
+      $config_obj.paths 
+      | items {|path mods|
+        $mods 
+        | items {|mod_head mod_rec|
+          let mod_path = $config_obj.dotfile-path 
+          | path join $mod_head 
+          | path expand
+
+          let link_path = $path
+          | path join $mod_head
+          | path expand --no-symlink
+
+          let alias = if ("alias" in $mod_rec) {
+            $mod_rec | get "alias"
+          } else {
+            $mod_head
+          }
+
+          if not ($mod_path | path exists) { 
+            print -e $"idm: Failed to create link for ($alias), module ($mod_path) does not exist."
+            return
+          }
+
+          if ($link_path | path exists --no-symlink) {
+            if ($link_path | path type) != "symlink" {
+              print -e $"idm: Failed to create link for ($alias), target path ($link_path) already exists and is not a symlink, requires manual intervention to prevent data loss."
+              return
+            }
+
+            # Check if symlink is dangling, if so, (for now) ignore
+            if not ($link_path | path exists) {
+              print -e $"idm: Failed to create link for ($alias), broken symlink ($link_path) exists, requires manual intervention to prevent data loss."
+              return
+            }
+
+            if (readlink -f $link_path) != $mod_path {
+              print -e $"idm: Failed to create link for ($alias), symlink ($link_path) already exists but does not point to intended module, requires manual intervention to prevent data loss."
+              return
+            }
+            
+            # At this point we can assert the symlink already exists and points
+            # to the intended target so there is no need to do anything else with this
+            # module, therefore, we return quietly.
+            return
+          }
+
+          ln -s $mod_path $link_path
+        } 
+      } | ignore
+    }
+
+    _ => {}
+  }
+}
