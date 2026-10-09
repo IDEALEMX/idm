@@ -1,6 +1,6 @@
 #!/bin/nu
 
-const idm_version = "1.0.0"
+const idm_version = "1.1.0"
 
 def --wrapped main [cmd?: string, -c: string, --version(-v) , ...args: string] {
   let config_obj = if $c != null { 
@@ -44,6 +44,38 @@ def --wrapped main [cmd?: string, -c: string, --version(-v) , ...args: string] {
             return
           }
 
+          # Check for an "as" flag
+          if ("as" in $mod_rec) {
+            let as_link_path = $path
+            | path join ($mod_rec | get "as")
+            | path expand --no-symlink
+            print $as_link_path
+
+            if ($as_link_path | path exists) {
+              if ($as_link_path | path type) != "symlink" {
+                print -e $"idm: Failed to create link for ($alias), target path ($as_link_path) already exists and is not a symlink, requires manual intervention to prevent data loss"
+                return
+              }
+
+              # Check if symlink is dangling, if so, (for now) ignore
+              if not ($as_link_path | path exists) {
+                print -e $"idm: Failed to create link for ($alias), broken symlink ($as_link_path) exists, requires manual intervention to prevent data loss"
+                return
+              }
+
+              if (readlink -f $as_link_path) != $mod_path {
+                print -e $"idm: Failed to create link for ($alias), symlink ($as_link_path) already exists but does not point to intended module, requires manual intervention to prevent data loss"
+                return
+              }
+
+              return
+            }
+            
+            ln -s $mod_path $as_link_path
+            return
+          }
+
+          # Handle if symlink already exists
           if ($link_path | path exists --no-symlink) {
             if ($link_path | path type) != "symlink" {
               print -e $"idm: Failed to create link for ($alias), target path ($link_path) already exists and is not a symlink, requires manual intervention to prevent data loss"
