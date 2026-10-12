@@ -180,3 +180,6 @@ In this case, we can use "as", to change the name this new symlink will take:
 }
 ```
 and so, the resulting symlink is "~/.config/idm"
+
+## TODO
+[ ] Implement proper --help/ -h message

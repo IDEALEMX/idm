@@ -1,8 +1,28 @@
 #!/bin/nu
 
 const idm_version = "1.1.0"
+const help_msg = "
+IDM: IDEALEMX's Dotfile Manager
 
-def --wrapped main [cmd?: string, -c: string, --version(-v) , ...args: string] {
+# Subcommands
+sync: generate necesary symlinks based on configuration.
+gpush: add, commit and push to origin all changes in the configured dotfile repo via git.
+gpull: pull from git origin.
+grestore: restore changes to a module in configured dotfile repo.
+anything else: wrapper for git -C "path/to/configured/dotfile/repo"
+
+# Flags
+-c "path/to/config": specify configuration path.
+
+For more information check: https://github.com/IDEALEMX/idm/blob/main/idm
+"
+
+def --wrapped main [cmd?: string, -c: string, --version(-v), ...args: string] {
+  if $version {
+    print $"idm version ($idm_version)"
+    return
+  }
+
   let config_path =  if $c != null { 
     $c
   } else {
@@ -15,11 +35,6 @@ def --wrapped main [cmd?: string, -c: string, --version(-v) , ...args: string] {
   }
 
   let config_obj = open ($config_path | path expand)
-
-  if $version {
-    print $"idm version ($idm_version)"
-    return
-  }
 
   if ($cmd | is-empty) {
     print "idm: Error, argument required"
