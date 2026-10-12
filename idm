@@ -3,11 +3,18 @@
 const idm_version = "1.1.0"
 
 def --wrapped main [cmd?: string, -c: string, --version(-v) , ...args: string] {
-  let config_obj = if $c != null { 
-    open ($c | path expand)
+  let config_path =  if $c != null { 
+    $c
   } else {
-    open ("~/.config/idm/idm.json" | path expand)
+    "~/.config/idm/idm.json"
   }
+
+  if not ($config_path | path expand | path exists) {
+    print -e "idm: Error, configuration not found"
+    exit 1
+  }
+
+  let config_obj = open ($config_path | path expand)
 
   if $version {
     print $"idm version ($idm_version)"
@@ -16,7 +23,7 @@ def --wrapped main [cmd?: string, -c: string, --version(-v) , ...args: string] {
 
   if ($cmd | is-empty) {
     print "idm: Error, argument required"
-    return
+    exit 1
   }
 
   match $cmd { 
