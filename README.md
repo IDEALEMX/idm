@@ -182,4 +182,6 @@ In this case, we can use "as", to change the name this new symlink will take:
 and so, the resulting symlink is "~/.config/idm"
 
 ## TODO
-[ ] Implement proper --help/ -h message
+[ ] Proper --help/ -h message
+[ ] Sudo flag for links that may require sudo to be created
+[ ] Allow gpush to push into origin in branches other than main properly

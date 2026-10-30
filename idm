@@ -127,8 +127,7 @@ def --wrapped main [cmd?: string, -c: string, --version(-v), ...args: string] {
       } | ignore
     }
 
-    # Names are gpush and gpull to allow access to git push and git pull manually in case it is needed,
-    # this should not be often necesary however
+    # Names are gpush and gpull to allow access to git push and git pull manually in case it is needed
     "gpush" => {
 
       # run-pre-gpush if defined
