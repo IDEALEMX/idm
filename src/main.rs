@@ -1,0 +1,133 @@
+use std::{collections::HashMap, ffi::OsStr, fs::File, io::Read, path::PathBuf, process};
+
+use clap::{Parser};
+use serde::{Deserialize, Serialize};
+
+const EXAMPLE_CONF: &str = r#"{
+    "dotfile-path" : "~/dotfiles/",
+    "run-pre-gpush" : "~/dotfiles/scripts/encrypt-personal",
+
+    "paths" : {
+        "~/.config/" : {
+            "fastfetch" : {},
+            "idm" : {},
+            "kitty" : {},
+            "mpd" : {},
+            "nushell" : { "alias" : "nu" },
+            "nvim" : {},
+            "mako" : {},
+            "rmpc" : {},
+            "rofi" : {},
+            "cava" : {},
+            "zsh" : {},
+            "mango" : {},
+            "waybar" : {}
+        },
+
+        "~/" : {
+            "scripts" : {},
+            "personal/notebook" : {
+                "as" : "notebook",
+                "alias" : "notebook"
+            },
+
+            "personal/org" : {
+                "as" : "org",
+                "alias" : "org"
+            },
+
+            ".zshenv" : {}
+        }
+    }
+}"#;
+
+const IDM_VERSION: &str = "2.0.0";
+
+#[derive(Parser, Debug)]
+struct Args {
+    // Load a specific config file
+#[arg(short, long, value_name = "FILE")]
+    config: Option<PathBuf>,
+
+    // Get current idm version
+#[arg(short, long)]
+    version: bool,
+
+    action: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Config {
+    #[serde(rename = "dotfile-path")]
+    dotfile_path: String,
+
+    #[serde(rename = "run-pre-gpush")]
+    run_pre_gpush: String,
+
+    // path -> modlist
+    paths: HashMap<String, 
+        // mod -> properties
+        HashMap<String, 
+            HashMap<String, String>>>,
+}
+
+fn main() {
+    let args = Args::parse();
+
+    // Print version
+    if args.version {
+        println!("idm {}", IDM_VERSION);
+        return;
+    }
+
+    // Optionally set alternative path
+    let config_path = if let Some(config_path) = args.config {
+        config_path
+    } else {
+        // TODO: Follow best practice in this regard using XDG variables probably
+        PathBuf::from("/home/ideale/.config/idm/idm.json")
+    };
+
+    // Verify config validity
+    match open_config_path(&config_path) {
+        Ok(mut config_file) => {
+            let mut buf: String = String::default();
+            let _ = config_file.read_to_string(&mut buf);
+            let config_struct: Config = serde_json::from_str(buf.as_str()).unwrap();
+            println!("dotfile_path {}", config_struct.dotfile_path);
+        },
+        Err(err_msg) => {
+            eprintln!("{err_msg}");
+            process::exit(1);
+        },
+    }
+
+    match args.action {
+        _ => {
+            eprintln!("idm: Error, unrecognized command!");
+            process::exit(1);
+        }
+    }
+}
+
+fn open_config_path(config_path: &PathBuf) -> Result<File, &str> {
+    if !config_path.exists() {
+        return Err("idm: Error, configuration file does not exist");
+    }
+
+    if !config_path.is_file() {
+        return Err("idm: Error, configuration must be a JSON file");
+    }
+
+    if config_path.extension().and_then(OsStr::to_str) != Some("json") {
+        return Err("idm: Error, configuration must be a JSON file");
+    }
+
+    match File::open(config_path) {
+        Ok(f) => {return Ok(f);},
+        Err(_) => {
+            return Err("idm: Error ocurred while opening configuration file");
+        },
+    };
+}
+
