@@ -5,6 +5,7 @@ use clap::{Parser};
 mod sync;
 mod config;
 mod utils;
+mod gcommands;
 
 const IDM_VERSION: &str = "2.0.0";
 
@@ -54,9 +55,11 @@ fn main() {
 
     match args.action.as_str() {
         "sync" => sync::handle_sync(&config_struct),
+        "gpush" => gcommands::handle_gpush(&config_struct),
         _ => {
             eprintln!("idm: Error, unrecognized command!");
             process::exit(1);
         }
     }
 }
+

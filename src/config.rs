@@ -8,12 +8,13 @@ pub struct Config {
     pub dotfile_path: String,
 
     #[serde(rename = "run-pre-gpush")]
-    pub run_pre_gpush: String,
+    pub run_pre_gpush: Option<PathBuf>,
 
     // path -> modlist
     pub paths: HashMap<String, 
-        // mod -> properties
+        // mod -> attributes
         HashMap<String, 
+            // attribute -> value
             HashMap<String, String>>>,
 }
 
@@ -34,6 +35,8 @@ pub fn config_to_struct(config_file: &mut File) -> Result<Config, &str> {
     }
 }
 
+// TODO: opening the file should be handdled locally and config_to_struct should
+// work as main public interface
 pub fn open_config_path(config_path: &PathBuf) -> Result<File, &str> {
     if !config_path.exists() {
         return Err("idm: Error, configuration file does not exist!");
