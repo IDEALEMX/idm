@@ -45,7 +45,6 @@ pub fn handle_sync(config_struct: &Config) {
 
             // Handle case where full_module_path is already occupied
             if full_module_path.exists() && !full_module_path.is_symlink() {
-                println!("We got here for {}", module_head);
                 module_path_occupied_non_symlink(&full_module_path, &full_dotfile_module_path);
             } else if full_module_path.exists() {
                 module_path_occupied_symlink(&full_module_path, &full_dotfile_module_path);
