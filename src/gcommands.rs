@@ -22,6 +22,12 @@ pub fn handle_gpush(config_struct: &Config) {
         git_do(vec!["push", "origin"]);
 }
 
+pub fn handle_gpull(config_struct: &Config) {
+    let repo_path = String::from(shellexpand::tilde(&config_struct.dotfile_path));
+    let git_do = git_do_constructor(&repo_path);
+    git_do(vec!["pull", "origin"]);
+}
+
 fn git_do_constructor(repo_path: &String) -> impl Fn(Vec<&str>) {
     let repo_path = repo_path.clone();
 

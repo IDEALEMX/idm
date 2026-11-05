@@ -56,6 +56,7 @@ fn main() {
     match args.action.as_str() {
         "sync" => sync::handle_sync(&config_struct),
         "gpush" => gcommands::handle_gpush(&config_struct),
+        "gpull" => gcommands::handle_gpull(&config_struct),
         _ => {
             eprintln!("idm: Error, unrecognized command!");
             process::exit(1);
