@@ -9,6 +9,7 @@ IDM allows for the automatic creation and management of symbolic links from a lo
 the rest of the system.
 
 ### Configuration syntax
+#### Basic
 IDM is configured using a idm.json file with the following syntax:
 ```json
 {
@@ -25,6 +26,7 @@ IDM is configured using a idm.json file with the following syntax:
 In the previous example, after syncing the configuration, idm would create the following symlink:
 /parent/path/module_name -> /path/to/dotfile/repository/module_name
 
+#### "from" keyword
 If the name or path of the module name happens to be different from the target, then the "from" keyword can be 
 used to specify the location (relative to the dotfile-path)
 
@@ -43,6 +45,8 @@ used to specify the location (relative to the dotfile-path)
 ```
 Which will create the following symlink
 /parent/path/module_name -> /path/to/dotfile/repository/some/path/to/module
+
+#### Hooks
 
 ### Commands
 #### imd sync
@@ -67,5 +71,4 @@ The -c flag allows for the loading a different configuration file from the defau
 - Proper --help/ -h message
 - Sudo flag for links that may require sudo to be created
 - Allow gpush to push into origin in branches other than main properly
-- Include support for all run-pre and run-post variants
 - Restore option implemented using fzf match selection

@@ -7,8 +7,18 @@ pub struct Config {
     #[serde(rename = "dotfile-path")]
     pub dotfile_path: String,
 
+    // Hooks
     #[serde(rename = "run-pre-gpush")]
     pub run_pre_gpush: Option<PathBuf>,
+
+    #[serde(rename = "run-post-gpush")]
+    pub run_post_gpush: Option<PathBuf>,
+
+    #[serde(rename = "run-pre-gpull")]
+    pub run_pre_gpull: Option<PathBuf>,
+
+    #[serde(rename = "run-post-gpull")]
+    pub run_post_gpull: Option<PathBuf>,
 
     // path -> modlist
     pub paths: HashMap<String, 
