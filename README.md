@@ -44,9 +44,28 @@ used to specify the location (relative to the dotfile-path)
 Which will create the following symlink
 /parent/path/module_name -> /path/to/dotfile/repository/some/path/to/module
 
+### Commands
+#### imd sync
+Will generate all symlinks based on configuration file.
+
+#### idm gpush
+Will automatically perform the following commands in the dotfiles repo:
+``` sh
+git add -A
+git commit -m "26e9fb14-ef75-490a-b6ea-4139e44474db"
+git push origin
+```
+
+#### idm gpush
+Will pull from origin into the dotfiles repo.
+
+## Other commands
+### idm -c path/to/config_file.json
+The -c flag allows for the loading a different configuration file from the default.
+
 # Roadmap
-[ ] Proper --help/ -h message
-[ ] Sudo flag for links that may require sudo to be created
-[ ] Allow gpush to push into origin in branches other than main properly
-[ ] Include support for all run-pre and run-post variants
-[ ] Restore option implemented using fzf match selection
+- Proper --help/ -h message
+- Sudo flag for links that may require sudo to be created
+- Allow gpush to push into origin in branches other than main properly
+- Include support for all run-pre and run-post variants
+- Restore option implemented using fzf match selection
