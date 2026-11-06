@@ -1,5 +1,5 @@
 # IDEALEMX's Dotfile Manager
-A *simple* nushell utility for managing your system's configuration *quickly*
+A *simple* Rust utility for managing your system's configuration *quickly*
 and *predictably* for POSIX UNIX systems.
 
 # Features
