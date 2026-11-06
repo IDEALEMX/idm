@@ -47,6 +47,36 @@ Which will create the following symlink
 /parent/path/module_name -> /path/to/dotfile/repository/some/path/to/module
 
 #### Hooks
+Hooks allow for arbitrary code execution before and after calling different commdands,
+so for example, the following configuration:
+
+``` json
+{
+    "run-pre-gpush" : "~/path/to/script",
+    "run-post-gpush" : "echo 'gpush done!'",
+    
+    "dotfile-path" : "path/to/dotfile/repository",
+
+    "paths" : {
+        "parent/path" : {
+            "module_name" : {}
+        }
+    }
+}
+```
+
+Will make it so that after calling the **idm gpush** command it will:
+execute ~/path/to/script before pushing,
+echo 'gpush done!' after pushing.
+
+The content inbetween quotes will be executed as a POSIX sh command.
+
+**The following are all the avaliable hooks:**
+- run-pre-gpush
+- run-post-gpush
+
+- run-pre-gpull
+- run-post-gpull
 
 ### Commands
 #### imd sync
