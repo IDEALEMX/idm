@@ -35,8 +35,8 @@ fn main() {
     let config_path = if let Some(config_path) = args.config {
         config_path
     } else {
-        // TODO: Follow best practice in this regard using XDG variables probably
-        PathBuf::from("/home/ideale/.config/idm/idm.json")
+        let expanded_config = shellexpand::tilde("~/.config/idm/idm.json");
+        PathBuf::from(expanded_config.as_ref())
     };
 
     // Verify config validity

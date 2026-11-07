@@ -10,7 +10,7 @@ the rest of the system.
 
 ### Configuration syntax
 #### Basic
-IDM is configured using a idm.json file with the following syntax:
+IDM is configured using a ~/.config/idm/idm.json file with the following syntax:
 ```json
 {
     "dotfile-path" : "path/to/dotfile/repository",

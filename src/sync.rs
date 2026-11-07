@@ -118,8 +118,8 @@ fn module_path_occupied_symlink(full_module_path: &PathBuf, full_dotfile_module_
 
 fn create_symlink(full_module_path: &PathBuf, full_dotfile_module_path: &PathBuf) {
     if let Err(_) = std::os::unix::fs::symlink(&full_dotfile_module_path, &full_module_path) {
-        eprintln!("idm: Error, could not create symlink for: {} -> {}", full_dotfile_module_path.display(), full_module_path.display());
+        eprintln!("idm: Error, could not create symlink for: {} -> {}", full_module_path.display(), full_dotfile_module_path.display());
     } else {
-        println!("idm: Created symlink for: {} -> {}", full_dotfile_module_path.display(), full_module_path.display());
+        println!("idm: Created symlink for: {} -> {}", full_module_path.display(), full_dotfile_module_path.display());
     };
 }
